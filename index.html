@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tengoku 天国 — ระบบหลังบ้าน</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&family=Noto+Serif+JP:wght@600;700&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink: '#1a1413',
+          panel: '#241b19',
+          panel2: '#2e2321',
+          line: '#3d2f2c',
+          crimson: '#b3322e',
+          crimsondk: '#8c2522',
+          gold: '#d9a441',
+          goldlt: '#e8c878',
+          cream: '#f3ece3',
+          muted: '#a3938c',
+          good: '#4c9a6a',
+          warn: '#d99441',
+          bad: '#cf5a52',
+        },
+        fontFamily: {
+          thai: ['Noto Sans Thai', 'sans-serif'],
+          jp: ['Noto Serif JP', 'serif'],
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { font-family: 'Noto Sans Thai', sans-serif; }
+  .jp { font-family: 'Noto Serif JP', serif; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #3d2f2c; border-radius: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  .nav-item.active { background: linear-gradient(90deg, rgba(179,50,46,.25), transparent); border-left-color: #d9a441; color: #f3ece3; }
+  .nav-item.active .nav-ic { color: #d9a441; }
+  .page { display: none; }
+  .page.active { display: block; animation: fade .25s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px);} to {opacity:1; transform:none;} }
+  .card { background: #241b19; border: 1px solid #3d2f2c; }
+</style>
+</head>
+<body class="bg-ink text-cream min-h-screen">
+
+<div class="flex min-h-screen">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="w-64 shrink-0 bg-panel border-r border-line flex flex-col">
+    <div class="px-6 py-6 border-b border-line">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-lg bg-crimson grid place-items-center shadow-lg shadow-crimson/30">
+          <span class="jp text-2xl text-goldlt leading-none">天</span>
+        </div>
+        <div>
+          <div class="jp text-lg text-gold leading-tight">天国</div>
+          <div class="text-sm font-semibold tracking-wide">TENGOKU</div>
+        </div>
+      </div>
+      <p class="text-xs text-muted mt-2">ระบบจัดการหลังร้าน</p>
+    </div>
+
+    <nav class="flex-1 py-4 text-sm">
+      <a onclick="go('dashboard',this)" class="nav-item active flex items-center gap-3 px-6 py-3 border-l-2 border-transparent text-muted hover:text-cream cursor-pointer transition">
+        <span class="nav-ic">▦</span> ภาพรวม
+      </a>
+      <a onclick="go('stock',this)" class="nav-item flex items-center gap-3 px-6 py-3 border-l-2 border-transparent text-muted hover:text-cream cursor-pointer transition">
+        <span class="nav-ic">◫</span> คลังวัตถุดิบ
+      </a>
+      <a onclick="go('receive',this)" class="nav-item flex items-center gap-3 px-6 py-3 border-l-2 border-transparent text-muted hover:text-cream cursor-pointer transition">
+        <span class="nav-ic">⊕</span> รับของเข้า
+      </a>
+      <a onclick="go('suppliers',this)" class="nav-item flex items-center gap-3 px-6 py-3 border-l-2 border-transparent text-muted hover:text-cream cursor-pointer transition">
+        <span class="nav-ic">⛟</span> ซัพพลายเออร์
+      </a>
+      <a onclick="go('menu',this)" class="nav-item flex items-center gap-3 px-6 py-3 border-l-2 border-transparent text-muted hover:text-cream cursor-pointer transition">
+        <span class="nav-ic">🍣</span> เมนู &amp; สูตร
+      </a>
+      <a onclick="go('sales',this)" class="nav-item flex items-center gap-3 px-6 py-3 border-l-2 border-transparent text-muted hover:text-cream cursor-pointer transition">
+        <span class="nav-ic">🧾</span> บันทึกการขาย
+      </a>
+      <a onclick="go('reports',this)" class="nav-item flex items-center gap-3 px-6 py-3 border-l-2 border-transparent text-muted hover:text-cream cursor-pointer transition">
+        <span class="nav-ic">📊</span> รายงาน &amp; กำไร
+      </a>
+    </nav>
+
+    <div class="px-6 py-4 border-t border-line flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full bg-panel2 grid place-items-center text-gold font-semibold">ก</div>
+      <div class="text-xs">
+        <div class="font-semibold">เจ้าของร้าน</div>
+        <div class="text-muted">ผู้ดูแลระบบ</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main class="flex-1 overflow-y-auto">
+    <header class="sticky top-0 z-10 bg-ink/90 backdrop-blur border-b border-line px-8 py-4 flex items-center justify-between">
+      <div>
+        <h1 id="pageTitle" class="text-xl font-bold">ภาพรวม</h1>
+        <p id="pageSub" class="text-xs text-muted">สรุปสถานะร้านวันนี้</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="text-right text-xs text-muted">
+          <div>วันจันทร์ที่ 9 มิ.ย. 2569</div>
+          <div class="text-cream">เปิดร้าน · 11:00 น.</div>
+        </div>
+        <button class="bg-crimson hover:bg-crimsondk transition px-4 py-2 rounded-lg text-sm font-semibold shadow-lg shadow-crimson/20">+ บันทึกใหม่</button>
+      </div>
+    </header>
+
+    <div class="p-8 max-w-7xl">
+
+      <!-- ========== DASHBOARD ========== -->
+      <section id="dashboard" class="page active">
+        <!-- KPI -->
+        <div class="grid grid-cols-4 gap-4 mb-6">
+          <div class="card rounded-xl p-5">
+            <div class="text-xs text-muted">ยอดขายวันนี้</div>
+            <div class="text-2xl font-bold mt-1">฿18,450</div>
+            <div class="text-xs text-good mt-1">▲ 12% จากเมื่อวาน</div>
+          </div>
+          <div class="card rounded-xl p-5">
+            <div class="text-xs text-muted">กำไรเดือนนี้</div>
+            <div class="text-2xl font-bold mt-1 text-goldlt">฿142,800</div>
+            <div class="text-xs text-good mt-1">▲ 8% จากเดือนก่อน</div>
+          </div>
+          <div class="card rounded-xl p-5">
+            <div class="text-xs text-muted">มูลค่าสต๊อกคงเหลือ</div>
+            <div class="text-2xl font-bold mt-1">฿86,320</div>
+            <div class="text-xs text-muted mt-1">48 รายการวัตถุดิบ</div>
+          </div>
+          <div class="card rounded-xl p-5 border-bad/40">
+            <div class="text-xs text-muted">ของใกล้หมด</div>
+            <div class="text-2xl font-bold mt-1 text-bad">5 รายการ</div>
+            <div class="text-xs text-warn mt-1">ต้องสั่งเพิ่มด่วน</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-6">
+          <!-- left: sales chart -->
+          <div class="col-span-2 card rounded-xl p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-semibold">ยอดขาย 7 วันล่าสุด</h3>
+              <span class="text-xs text-muted">บาท</span>
+            </div>
+            <div class="flex items-end gap-4 h-44">
+              <div class="flex-1 flex flex-col items-center gap-2">
+                <div class="w-full bg-crimson/70 rounded-t" style="height:55%"></div><span class="text-xs text-muted">จ</span>
+              </div>
+              <div class="flex-1 flex flex-col items-center gap-2">
+                <div class="w-full bg-crimson/70 rounded-t" style="height:40%"></div><span class="text-xs text-muted">อ</span>
+              </div>
+              <div class="flex-1 flex flex-col items-center gap-2">
+                <div class="w-full bg-crimson/70 rounded-t" style="height:62%"></div><span class="text-xs text-muted">พ</span>
+              </div>
+              <div class="flex-1 flex flex-col items-center gap-2">
+                <div class="w-full bg-crimson/70 rounded-t" style="height:48%"></div><span class="text-xs text-muted">พฤ</span>
+              </div>
+              <div class="flex-1 flex flex-col items-center gap-2">
+                <div class="w-full bg-gold rounded-t" style="height:88%"></div><span class="text-xs text-cream">ศ</span>
+              </div>
+              <div class="flex-1 flex flex-col items-center gap-2">
+                <div class="w-full bg-gold rounded-t" style="height:100%"></div><span class="text-xs text-cream">ส</span>
+              </div>
+              <div class="flex-1 flex flex-col items-center gap-2">
+                <div class="w-full bg-crimson/70 rounded-t" style="height:72%"></div><span class="text-xs text-muted">อา</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- right: top selling -->
+          <div class="card rounded-xl p-6">
+            <h3 class="font-semibold mb-4">เมนูขายดี · เดือนนี้</h3>
+            <ol class="space-y-3 text-sm">
+              <li class="flex items-center gap-3">
+                <span class="w-6 h-6 rounded grid place-items-center bg-gold text-ink font-bold text-xs">1</span>
+                <span class="flex-1">แซลมอนซาชิมิ</span><span class="text-muted">312 จาน</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <span class="w-6 h-6 rounded grid place-items-center bg-panel2 text-goldlt font-bold text-xs">2</span>
+                <span class="flex-1">ราเมงทงคตสึ</span><span class="text-muted">287 ชาม</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <span class="w-6 h-6 rounded grid place-items-center bg-panel2 text-goldlt font-bold text-xs">3</span>
+                <span class="flex-1">ข้าวหน้าปลาไหล</span><span class="text-muted">241 จาน</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <span class="w-6 h-6 rounded grid place-items-center bg-panel2 text-muted font-bold text-xs">4</span>
+                <span class="flex-1">เกี๊ยวซ่า</span><span class="text-muted">198 ที่</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <span class="w-6 h-6 rounded grid place-items-center bg-panel2 text-muted font-bold text-xs">5</span>
+                <span class="flex-1">ชุดเทมปุระ</span><span class="text-muted">176 ชุด</span>
+              </li>
+            </ol>
+          </div>
+        </div>
+
+        <!-- low stock alert -->
+        <div class="card rounded-xl p-6 mt-6 border-bad/30">
+          <h3 class="font-semibold mb-4 flex items-center gap-2"><span class="text-bad">⚠</span> วัตถุดิบที่ต้องสั่งเพิ่ม</h3>
+          <div class="grid grid-cols-5 gap-3 text-sm">
+            <div class="bg-panel2 rounded-lg p-3"><div>ปลาแซลมอน</div><div class="text-bad text-xs mt-1">เหลือ 2.5 / 10 กก.</div></div>
+            <div class="bg-panel2 rounded-lg p-3"><div>สาหร่ายโนริ</div><div class="text-bad text-xs mt-1">เหลือ 1 / 8 ห่อ</div></div>
+            <div class="bg-panel2 rounded-lg p-3"><div>ไข่ปลาเรืองแสง</div><div class="text-warn text-xs mt-1">เหลือ 3 / 6 กล่อง</div></div>
+            <div class="bg-panel2 rounded-lg p-3"><div>วาซาบิ</div><div class="text-warn text-xs mt-1">เหลือ 4 / 10 หลอด</div></div>
+            <div class="bg-panel2 rounded-lg p-3"><div>เส้นราเมง</div><div class="text-bad text-xs mt-1">เหลือ 12 / 50 ก้อน</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== STOCK ========== -->
+      <section id="stock" class="page">
+        <div class="flex items-center justify-between mb-5">
+          <div class="flex gap-2">
+            <input placeholder="ค้นหาวัตถุดิบ..." class="bg-panel border border-line rounded-lg px-4 py-2 text-sm w-72 placeholder:text-muted focus:outline-none focus:border-gold"/>
+            <select class="bg-panel border border-line rounded-lg px-3 py-2 text-sm text-muted">
+              <option>ทุกหมวด</option><option>ปลา/ซีฟู้ด</option><option>ของแห้ง</option><option>เครื่องปรุง</option>
+            </select>
+          </div>
+          <div class="flex gap-2">
+            <button class="bg-panel2 border border-line hover:border-gold transition px-4 py-2 rounded-lg text-sm">− ตัดสต๊อก</button>
+            <button class="bg-crimson hover:bg-crimsondk transition px-4 py-2 rounded-lg text-sm font-semibold">+ เติมสต๊อก</button>
+          </div>
+        </div>
+
+        <div class="card rounded-xl overflow-hidden">
+          <table class="w-full text-sm">
+            <thead class="bg-panel2 text-muted text-xs uppercase">
+              <tr>
+                <th class="text-left px-5 py-3 font-medium">วัตถุดิบ</th>
+                <th class="text-left px-5 py-3 font-medium">หมวด</th>
+                <th class="text-right px-5 py-3 font-medium">คงเหลือ</th>
+                <th class="text-right px-5 py-3 font-medium">จุดสั่งซื้อ</th>
+                <th class="text-right px-5 py-3 font-medium">ต้นทุน/หน่วย</th>
+                <th class="text-left px-5 py-3 font-medium">ซัพพลายเออร์</th>
+                <th class="text-center px-5 py-3 font-medium">สถานะ</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-line">
+              <tr class="hover:bg-panel2/50">
+                <td class="px-5 py-3 font-medium">ปลาแซลมอน (นอร์เวย์)</td><td class="px-5 py-3 text-muted">ปลา/ซีฟู้ด</td>
+                <td class="px-5 py-3 text-right text-bad font-semibold">2.5 กก.</td><td class="px-5 py-3 text-right text-muted">10 กก.</td>
+                <td class="px-5 py-3 text-right">฿620</td><td class="px-5 py-3 text-muted">Ocean Fresh Co.</td>
+                <td class="px-5 py-3 text-center"><span class="text-xs bg-bad/20 text-bad px-2 py-1 rounded-full">ใกล้หมด</span></td>
+              </tr>
+              <tr class="hover:bg-panel2/50">
+                <td class="px-5 py-3 font-medium">ข้าวญี่ปุ่น (Koshihikari)</td><td class="px-5 py-3 text-muted">ของแห้ง</td>
+                <td class="px-5 py-3 text-right font-semibold">45 กก.</td><td class="px-5 py-3 text-right text-muted">20 กก.</td>
+                <td class="px-5 py-3 text-right">฿78</td><td class="px-5 py-3 text-muted">Sakura Trading</td>
+                <td class="px-5 py-3 text-center"><span class="text-xs bg-good/20 text-good px-2 py-1 rounded-full">ปกติ</span></td>
+              </tr>
+              <tr class="hover:bg-panel2/50">
+                <td class="px-5 py-3 font-medium">สาหร่ายโนริ</td><td class="px-5 py-3 text-muted">ของแห้ง</td>
+                <td class="px-5 py-3 text-right text-bad font-semibold">1 ห่อ</td><td class="px-5 py-3 text-right text-muted">8 ห่อ</td>
+                <td class="px-5 py-3 text-right">฿240</td><td class="px-5 py-3 text-muted">Sakura Trading</td>
+                <td class="px-5 py-3 text-center"><span class="text-xs bg-bad/20 text-bad px-2 py-1 rounded-full">ใกล้หมด</span></td>
+              </tr>
+              <tr class="hover:bg-panel2/50">
+                <td class="px-5 py-3 font-medium">เส้นราเมงสด</td><td class="px-5 py-3 text-muted">ของแห้ง</td>
+                <td class="px-5 py-3 text-right text-bad font-semibold">12 ก้อน</td><td class="px-5 py-3 text-right text-muted">50 ก้อน</td>
+                <td class="px-5 py-3 text-right">฿15</td><td class="px-5 py-3 text-muted">Noodle House</td>
+                <td class="px-5 py-3 text-center"><span class="text-xs bg-bad/20 text-bad px-2 py-1 rounded-full">ใกล้หมด</span></td>
+              </tr>
+              <tr class="hover:bg-panel2/50">
+                <td class="px-5 py-3 font-medium">โชยุ (ซีอิ๊วญี่ปุ่น)</td><td class="px-5 py-3 text-muted">เครื่องปรุง</td>
+                <td class="px-5 py-3 text-right font-semibold">18 ลิตร</td><td class="px-5 py-3 text-right text-muted">5 ลิตร</td>
+                <td class="px-5 py-3 text-right">฿95</td><td class="px-5 py-3 text-muted">Sakura Trading</td>
+                <td class="px-5 py-3 text-center"><span class="text-xs bg-good/20 text-good px-2 py-1 rounded-full">ปกติ</span></td>
+              </tr>
+              <tr class="hover:bg-panel2/50">
+                <td class="px-5 py-3 font-medium">ไข่ปลาเรืองแสง (Tobiko)</td><td class="px-5 py-3 text-muted">ปลา/ซีฟู้ด</td>
+                <td class="px-5 py-3 text-right text-warn font-semibold">3 กล่อง</td><td class="px-5 py-3 text-right text-muted">6 กล่อง</td>
+                <td class="px-5 py-3 text-right">฿450</td><td class="px-5 py-3 text-muted">Ocean Fresh Co.</td>
+                <td class="px-5 py-3 text-center"><span class="text-xs bg-warn/20 text-warn px-2 py-1 rounded-full">เริ่มน้อย</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ========== RECEIVE ========== -->
+      <section id="receive" class="page">
+        <div class="grid grid-cols-3 gap-6">
+          <div class="col-span-2 card rounded-xl p-6">
+            <h3 class="font-semibold mb-5">สร้างใบรับของเข้า (Purchase Order)</h3>
+            <div class="grid grid-cols-2 gap-4 mb-5">
+              <div>
+                <label class="text-xs text-muted">ซัพพลายเออร์</label>
+                <select class="w-full mt-1 bg-panel2 border border-line rounded-lg px-3 py-2 text-sm">
+                  <option>Ocean Fresh Co.</option><option>Sakura Trading</option><option>Noodle House</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-xs text-muted">วันที่รับของ</label>
+                <input type="date" value="2026-06-09" class="w-full mt-1 bg-panel2 border border-line rounded-lg px-3 py-2 text-sm"/>
+              </div>
+            </div>
+
+            <table class="w-full text-sm mb-4">
+              <thead class="text-muted text-xs border-b border-line">
+                <tr><th class="text-left py-2">วัตถุดิบ</th><th class="text-right py-2">จำนวน</th><th class="text-right py-2">ราคา/หน่วย</th><th class="text-right py-2">รวม</th></tr>
+              </thead>
+              <tbody class="divide-y divide-line">
+                <tr><td class="py-2">ปลาแซลมอน</td><td class="text-right">10 กก.</td><td class="text-right">฿620</td><td class="text-right text-goldlt">฿6,200</td></tr>
+                <tr><td class="py-2">ไข่ปลา Tobiko</td><td class="text-right">6 กล่อง</td><td class="text-right">฿450</td><td class="text-right text-goldlt">฿2,700</td></tr>
+                <tr><td class="py-2 text-muted">+ เพิ่มรายการ...</td><td></td><td></td><td></td></tr>
+              </tbody>
+            </table>
+            <div class="flex justify-between items-center border-t border-line pt-4">
+              <span class="text-sm text-muted">ยอดรวมทั้งใบ</span>
+              <span class="text-xl font-bold text-goldlt">฿8,900</span>
+            </div>
+            <button class="w-full mt-4 bg-crimson hover:bg-crimsondk transition py-2.5 rounded-lg font-semibold text-sm">บันทึก &amp; เติมสต๊อกอัตโนมัติ</button>
+          </div>
+
+          <div class="card rounded-xl p-6">
+            <h3 class="font-semibold mb-4">ใบรับของล่าสุด</h3>
+            <div class="space-y-3 text-sm">
+              <div class="bg-panel2 rounded-lg p-3">
+                <div class="flex justify-between"><span class="font-medium">#PO-0241</span><span class="text-muted text-xs">8 มิ.ย.</span></div>
+                <div class="text-muted text-xs mt-1">Sakura Trading · 5 รายการ</div>
+                <div class="text-goldlt mt-1">฿12,400</div>
+              </div>
+              <div class="bg-panel2 rounded-lg p-3">
+                <div class="flex justify-between"><span class="font-medium">#PO-0240</span><span class="text-muted text-xs">6 มิ.ย.</span></div>
+                <div class="text-muted text-xs mt-1">Ocean Fresh Co. · 3 รายการ</div>
+                <div class="text-goldlt mt-1">฿9,150</div>
+              </div>
+              <div class="bg-panel2 rounded-lg p-3">
+                <div class="flex justify-between"><span class="font-medium">#PO-0239</span><span class="text-muted text-xs">4 มิ.ย.</span></div>
+                <div class="text-muted text-xs mt-1">Noodle House · 2 รายการ</div>
+                <div class="text-goldlt mt-1">฿3,800</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== SUPPLIERS ========== -->
+      <section id="suppliers" class="page">
+        <div class="flex justify-between mb-5">
+          <input placeholder="ค้นหาซัพพลายเออร์..." class="bg-panel border border-line rounded-lg px-4 py-2 text-sm w-72 placeholder:text-muted focus:outline-none focus:border-gold"/>
+          <button class="bg-crimson hover:bg-crimsondk transition px-4 py-2 rounded-lg text-sm font-semibold">+ เพิ่มซัพพลายเออร์</button>
+        </div>
+        <div class="grid grid-cols-3 gap-4">
+          <div class="card rounded-xl p-5">
+            <div class="flex items-start justify-between">
+              <div class="w-10 h-10 rounded-lg bg-crimson/20 grid place-items-center text-gold">⛟</div>
+              <span class="text-xs bg-good/20 text-good px-2 py-1 rounded-full">ใช้งานอยู่</span>
+            </div>
+            <h3 class="font-semibold mt-3">Ocean Fresh Co.</h3>
+            <p class="text-xs text-muted mt-1">ปลา &amp; ซีฟู้ดสด</p>
+            <div class="text-xs text-muted mt-3 space-y-1">
+              <div>📞 02-345-6789</div>
+              <div>🧾 จัดส่ง 8 รายการ</div>
+              <div>💰 ยอดสั่งเดือนนี้ ฿42,300</div>
+            </div>
+          </div>
+          <div class="card rounded-xl p-5">
+            <div class="flex items-start justify-between">
+              <div class="w-10 h-10 rounded-lg bg-crimson/20 grid place-items-center text-gold">⛟</div>
+              <span class="text-xs bg-good/20 text-good px-2 py-1 rounded-full">ใช้งานอยู่</span>
+            </div>
+            <h3 class="font-semibold mt-3">Sakura Trading</h3>
+            <p class="text-xs text-muted mt-1">ข้าว, ของแห้ง, เครื่องปรุง</p>
+            <div class="text-xs text-muted mt-3 space-y-1">
+              <div>📞 02-111-2233</div>
+              <div>🧾 จัดส่ง 21 รายการ</div>
+              <div>💰 ยอดสั่งเดือนนี้ ฿58,900</div>
+            </div>
+          </div>
+          <div class="card rounded-xl p-5">
+            <div class="flex items-start justify-between">
+              <div class="w-10 h-10 rounded-lg bg-crimson/20 grid place-items-center text-gold">⛟</div>
+              <span class="text-xs bg-good/20 text-good px-2 py-1 rounded-full">ใช้งานอยู่</span>
+            </div>
+            <h3 class="font-semibold mt-3">Noodle House</h3>
+            <p class="text-xs text-muted mt-1">เส้นราเมง, เกี๊ยวซ่า</p>
+            <div class="text-xs text-muted mt-3 space-y-1">
+              <div>📞 081-234-5678</div>
+              <div>🧾 จัดส่ง 4 รายการ</div>
+              <div>💰 ยอดสั่งเดือนนี้ ฿14,200</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== MENU ========== -->
+      <section id="menu" class="page">
+        <div class="grid grid-cols-3 gap-6">
+          <div class="col-span-2">
+            <div class="flex justify-between mb-4">
+              <h3 class="font-semibold">รายการเมนู</h3>
+              <button class="bg-crimson hover:bg-crimsondk transition px-4 py-2 rounded-lg text-sm font-semibold">+ เพิ่มเมนู</button>
+            </div>
+            <div class="card rounded-xl overflow-hidden">
+              <table class="w-full text-sm">
+                <thead class="bg-panel2 text-muted text-xs uppercase">
+                  <tr><th class="text-left px-5 py-3 font-medium">เมนู</th><th class="text-right px-5 py-3 font-medium">ราคาขาย</th><th class="text-right px-5 py-3 font-medium">ต้นทุน</th><th class="text-right px-5 py-3 font-medium">กำไร/จาน</th><th class="text-right px-5 py-3 font-medium">%</th></tr>
+                </thead>
+                <tbody class="divide-y divide-line">
+                  <tr class="hover:bg-panel2/50 cursor-pointer"><td class="px-5 py-3 font-medium">แซลมอนซาชิมิ</td><td class="px-5 py-3 text-right">฿280</td><td class="px-5 py-3 text-right text-muted">฿112</td><td class="px-5 py-3 text-right text-good">฿168</td><td class="px-5 py-3 text-right text-good">60%</td></tr>
+                  <tr class="hover:bg-panel2/50 cursor-pointer"><td class="px-5 py-3 font-medium">ราเมงทงคตสึ</td><td class="px-5 py-3 text-right">฿220</td><td class="px-5 py-3 text-right text-muted">฿88</td><td class="px-5 py-3 text-right text-good">฿132</td><td class="px-5 py-3 text-right text-good">60%</td></tr>
+                  <tr class="hover:bg-panel2/50 cursor-pointer"><td class="px-5 py-3 font-medium">ข้าวหน้าปลาไหล</td><td class="px-5 py-3 text-right">฿320</td><td class="px-5 py-3 text-right text-muted">฿160</td><td class="px-5 py-3 text-right text-warn">฿160</td><td class="px-5 py-3 text-right text-warn">50%</td></tr>
+                  <tr class="hover:bg-panel2/50 cursor-pointer"><td class="px-5 py-3 font-medium">เกี๊ยวซ่า (6 ชิ้น)</td><td class="px-5 py-3 text-right">฿120</td><td class="px-5 py-3 text-right text-muted">฿42</td><td class="px-5 py-3 text-right text-good">฿78</td><td class="px-5 py-3 text-right text-good">65%</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- recipe panel -->
+          <div class="card rounded-xl p-6">
+            <div class="text-xs text-gold mb-1">สูตร / BOM</div>
+            <h3 class="font-semibold mb-1">แซลมอนซาชิมิ</h3>
+            <p class="text-xs text-muted mb-4">วัตถุดิบที่ใช้ต่อ 1 จาน → ตัดสต๊อกอัตโนมัติเมื่อขาย</p>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between bg-panel2 rounded-lg px-3 py-2"><span>ปลาแซลมอน</span><span class="text-muted">120 ก.</span></div>
+              <div class="flex justify-between bg-panel2 rounded-lg px-3 py-2"><span>วาซาบิ</span><span class="text-muted">5 ก.</span></div>
+              <div class="flex justify-between bg-panel2 rounded-lg px-3 py-2"><span>โชยุ</span><span class="text-muted">15 มล.</span></div>
+              <div class="flex justify-between bg-panel2 rounded-lg px-3 py-2"><span>หัวไชเท้าฝอย</span><span class="text-muted">20 ก.</span></div>
+            </div>
+            <div class="border-t border-line mt-4 pt-3 flex justify-between text-sm">
+              <span class="text-muted">ต้นทุนวัตถุดิบรวม</span><span class="font-semibold text-goldlt">฿112</span>
+            </div>
+            <button class="w-full mt-4 bg-panel2 border border-line hover:border-gold transition py-2 rounded-lg text-sm">แก้ไขสูตร</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== SALES ========== -->
+      <section id="sales" class="page">
+        <div class="grid grid-cols-3 gap-6">
+          <div class="col-span-2 card rounded-xl p-6">
+            <div class="flex justify-between mb-5">
+              <h3 class="font-semibold">บันทึกการขายวันนี้</h3>
+              <span class="text-xs text-muted">เชื่อมต่อ POS ได้ในอนาคต</span>
+            </div>
+            <table class="w-full text-sm">
+              <thead class="bg-panel2 text-muted text-xs uppercase">
+                <tr><th class="text-left px-4 py-3 font-medium">เวลา</th><th class="text-left px-4 py-3 font-medium">บิล</th><th class="text-left px-4 py-3 font-medium">รายการ</th><th class="text-right px-4 py-3 font-medium">ยอด</th></tr>
+              </thead>
+              <tbody class="divide-y divide-line">
+                <tr><td class="px-4 py-3 text-muted">12:14</td><td class="px-4 py-3">#1042</td><td class="px-4 py-3">ราเมง×2, เกี๊ยวซ่า×1</td><td class="px-4 py-3 text-right text-goldlt">฿560</td></tr>
+                <tr><td class="px-4 py-3 text-muted">12:31</td><td class="px-4 py-3">#1043</td><td class="px-4 py-3">แซลมอนซาชิมิ×1</td><td class="px-4 py-3 text-right text-goldlt">฿280</td></tr>
+                <tr><td class="px-4 py-3 text-muted">12:48</td><td class="px-4 py-3">#1044</td><td class="px-4 py-3">ข้าวหน้าปลาไหล×2, ชุดเทมปุระ×1</td><td class="px-4 py-3 text-right text-goldlt">฿940</td></tr>
+                <tr><td class="px-4 py-3 text-muted">13:02</td><td class="px-4 py-3">#1045</td><td class="px-4 py-3">ราเมง×1</td><td class="px-4 py-3 text-right text-goldlt">฿220</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card rounded-xl p-6">
+            <h3 class="font-semibold mb-4">เพิ่มบิลใหม่</h3>
+            <select class="w-full bg-panel2 border border-line rounded-lg px-3 py-2 text-sm mb-3"><option>เลือกเมนู...</option></select>
+            <div class="space-y-2 text-sm mb-4">
+              <div class="flex justify-between bg-panel2 rounded-lg px-3 py-2"><span>ราเมงทงคตสึ ×2</span><span class="text-muted">฿440</span></div>
+              <div class="flex justify-between bg-panel2 rounded-lg px-3 py-2"><span>เกี๊ยวซ่า ×1</span><span class="text-muted">฿120</span></div>
+            </div>
+            <div class="flex justify-between border-t border-line pt-3 mb-4"><span class="text-muted text-sm">รวม</span><span class="font-bold text-goldlt">฿560</span></div>
+            <button class="w-full bg-crimson hover:bg-crimsondk transition py-2.5 rounded-lg font-semibold text-sm">บันทึก &amp; ตัดสต๊อก</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== REPORTS ========== -->
+      <section id="reports" class="page">
+        <div class="flex justify-between mb-5">
+          <h3 class="font-semibold text-lg">สรุปประจำเดือน · มิถุนายน 2569</h3>
+          <div class="flex gap-2">
+            <select class="bg-panel border border-line rounded-lg px-3 py-2 text-sm"><option>มิถุนายน 2569</option><option>พฤษภาคม 2569</option></select>
+            <button class="bg-panel2 border border-line hover:border-gold transition px-4 py-2 rounded-lg text-sm">⬇ ส่งออก PDF</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-4 gap-4 mb-6">
+          <div class="card rounded-xl p-5"><div class="text-xs text-muted">รายได้รวม</div><div class="text-2xl font-bold mt-1">฿420,500</div></div>
+          <div class="card rounded-xl p-5"><div class="text-xs text-muted">ต้นทุนวัตถุดิบ</div><div class="text-2xl font-bold mt-1 text-warn">฿168,200</div></div>
+          <div class="card rounded-xl p-5"><div class="text-xs text-muted">ค่าใช้จ่ายอื่น</div><div class="text-2xl font-bold mt-1 text-muted">฿109,500</div></div>
+          <div class="card rounded-xl p-5 border-good/30"><div class="text-xs text-muted">กำไรสุทธิ</div><div class="text-2xl font-bold mt-1 text-good">฿142,800</div><div class="text-xs text-good">อัตรากำไร 34%</div></div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6">
+          <div class="card rounded-xl p-6">
+            <h3 class="font-semibold mb-4">เมนูทำกำไรสูงสุด</h3>
+            <div class="space-y-3 text-sm">
+              <div><div class="flex justify-between mb-1"><span>แซลมอนซาชิมิ</span><span class="text-good">฿52,416</span></div><div class="h-2 bg-panel2 rounded-full"><div class="h-2 bg-gold rounded-full" style="width:100%"></div></div></div>
+              <div><div class="flex justify-between mb-1"><span>ราเมงทงคตสึ</span><span class="text-good">฿37,884</span></div><div class="h-2 bg-panel2 rounded-full"><div class="h-2 bg-gold rounded-full" style="width:72%"></div></div></div>
+              <div><div class="flex justify-between mb-1"><span>ข้าวหน้าปลาไหล</span><span class="text-good">฿38,560</span></div><div class="h-2 bg-panel2 rounded-full"><div class="h-2 bg-gold rounded-full" style="width:74%"></div></div></div>
+              <div><div class="flex justify-between mb-1"><span>เกี๊ยวซ่า</span><span class="text-good">฿15,444</span></div><div class="h-2 bg-panel2 rounded-full"><div class="h-2 bg-gold rounded-full" style="width:30%"></div></div></div>
+            </div>
+          </div>
+          <div class="card rounded-xl p-6">
+            <h3 class="font-semibold mb-4">สัดส่วนค่าใช้จ่าย</h3>
+            <div class="flex items-center gap-6">
+              <div class="w-36 h-36 rounded-full shrink-0" style="background: conic-gradient(#b3322e 0 40%, #d9a441 40% 66%, #4c9a6a 66% 100%);"></div>
+              <div class="space-y-2 text-sm">
+                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded bg-crimson"></span> วัตถุดิบ · 40%</div>
+                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded bg-gold"></span> ค่าจ้าง/เช่า · 26%</div>
+                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded bg-good"></span> กำไรสุทธิ · 34%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  const titles = {
+    dashboard: ['ภาพรวม','สรุปสถานะร้านวันนี้'],
+    stock: ['คลังวัตถุดิบ','จัดการสต๊อก เติม/ตัด และจุดสั่งซื้อ'],
+    receive: ['รับของเข้า','บันทึกของที่สั่งจากซัพพลายเออร์'],
+    suppliers: ['ซัพพลายเออร์','ข้อมูลผู้ขายและประวัติการสั่งซื้อ'],
+    menu: ['เมนู & สูตร','ผูกวัตถุดิบเข้ากับเมนูเพื่อคิดต้นทุน'],
+    sales: ['บันทึกการขาย','ทุกบิลตัดสต๊อกอัตโนมัติตามสูตร'],
+    reports: ['รายงาน & กำไร','สรุปต้นทุน กำไร และเมนูขายดี'],
+  };
+  function go(id, el){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('pageTitle').textContent = titles[id][0];
+    document.getElementById('pageSub').textContent = titles[id][1];
+    document.querySelector('main').scrollTo(0,0);
+  }
+</script>
+</body>
+</html>

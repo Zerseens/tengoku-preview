@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tengoku De Cuisine — Poster</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Cinzel:wght@400;500;600&family=IBM+Plex+Sans+Thai:wght@200;300;400;500&family=Noto+Serif+Thai:wght@400;500;600&family=Noto+Serif+JP:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#1c1c1c; display:flex; flex-direction:column; align-items:center; gap:20px; padding:30px; min-height:100vh; }
+
+  /* A-series portrait poster, ~ 700 x 990 */
+  .poster {
+    width:700px; height:990px; position:relative; overflow:hidden;
+    background:
+      radial-gradient(120% 80% at 50% -10%, rgba(217,164,65,.10), transparent 60%),
+      linear-gradient(165deg, #0c0a09 0%, #161210 45%, #0c0a09 100%);
+    color:#efe7da; font-family:'IBM Plex Sans Thai', sans-serif; font-weight:300;
+    box-shadow:0 30px 80px rgba(0,0,0,.6);
+    border:1px solid #2a211d;
+  }
+
+  /* subtle texture lines */
+  .poster::before{
+    content:""; position:absolute; inset:0;
+    background-image:radial-gradient(circle at 1px 1px, rgba(217,164,65,.05) 1px, transparent 0);
+    background-size:26px 26px; pointer-events:none;
+  }
+
+  /* gold frame */
+  .frame{ position:absolute; inset:26px; border:1px solid rgba(217,164,65,.45); pointer-events:none; }
+  .frame::before{ content:""; position:absolute; inset:6px; border:1px solid rgba(217,164,65,.18); }
+  .corner{ position:absolute; width:22px; height:22px; border:2px solid #d9a441; }
+  .c-tl{ top:18px; left:18px; border-right:0; border-bottom:0; }
+  .c-tr{ top:18px; right:18px; border-left:0; border-bottom:0; }
+  .c-bl{ bottom:18px; left:18px; border-right:0; border-top:0; }
+  .c-br{ bottom:18px; right:18px; border-left:0; border-top:0; }
+
+  .inner{ position:relative; height:100%; padding:64px 60px 54px; display:flex; flex-direction:column; text-align:center; }
+
+  .kanji{ font-family:'Noto Serif JP', serif; font-size:64px; color:#d9a441; letter-spacing:8px; line-height:1; opacity:.92; }
+  .est{ font-family:'Cinzel',serif; font-size:11px; letter-spacing:6px; color:#9a8b7a; margin-top:14px; }
+
+  .logo{ margin-top:18px; }
+  .logo .tengoku{ font-family:'Cormorant Garamond',serif; font-weight:600; font-size:62px; line-height:.9; letter-spacing:2px; color:#f3ece0; }
+  .logo .de{ font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:400; font-size:30px; color:#d9a441; letter-spacing:3px; margin-top:2px; }
+  .tagline{ font-family:'Cinzel',serif; font-size:12px; letter-spacing:5px; color:#cdbfa8; margin-top:16px; }
+
+  .divider{ display:flex; align-items:center; justify-content:center; gap:14px; margin:26px 0; }
+  .divider .ln{ height:1px; width:90px; background:linear-gradient(90deg,transparent,#d9a441); }
+  .divider .ln.r{ background:linear-gradient(90deg,#d9a441,transparent); }
+  .divider .dot{ color:#d9a441; font-size:13px; }
+
+  .lead{ font-family:'Cormorant Garamond','Noto Serif Thai',serif; font-size:21px; color:#e7ddcd; line-height:1.6; padding:0 14px; font-weight:400; }
+
+  .menu{ margin-top:30px; }
+  .menu h3{ font-family:'Cinzel',serif; font-size:12px; letter-spacing:5px; color:#9a8b7a; margin-bottom:18px; }
+  .menu .grid{ display:grid; grid-template-columns:1fr 1fr; gap:13px 30px; max-width:480px; margin:0 auto; }
+  .menu .item{ display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+  .menu .item .nm{ font-family:'Cormorant Garamond',serif; font-size:21px; color:#f0e8da; white-space:nowrap; }
+  .menu .item .ds{ flex:1; border-bottom:1px dotted #524339; transform:translateY(-4px); }
+  .menu .item .jp{ font-family:'Noto Serif JP',serif; font-size:13px; color:#b89a5f; }
+
+  .spacer{ flex:1; }
+
+  .info{ display:flex; justify-content:center; gap:46px; margin-bottom:22px; }
+  .info .col h4{ font-family:'Cinzel',serif; font-size:10px; letter-spacing:3px; color:#d9a441; margin-bottom:8px; }
+  .info .col p{ font-size:14px; color:#d8cdbc; line-height:1.7; font-weight:300; }
+
+  .reserve{ background:rgba(217,164,65,.08); border:1px solid rgba(217,164,65,.35); border-radius:4px; padding:16px 22px; margin:0 auto 18px; }
+  .reserve .lbl{ font-family:'Cinzel',serif; font-size:10px; letter-spacing:4px; color:#9a8b7a; }
+  .reserve .ph{ font-family:'Cormorant Garamond',serif; font-size:26px; color:#f3ece0; letter-spacing:1px; margin-top:4px; }
+
+  .foot{ font-size:12px; color:#8a7c6c; letter-spacing:1px; }
+  .foot .fb{ color:#cdbfa8; }
+
+  /* elegant Thai accent for short labels */
+  .th-script{ font-family:'Noto Serif Thai',serif; font-weight:500; letter-spacing:1.5px; }
+
+  .hint{ color:#8a8076; font-family:'IBM Plex Sans Thai',sans-serif; font-weight:300; font-size:13px; }
+  @media print { body{ background:#fff; padding:0; } .hint{ display:none; } .poster{ box-shadow:none; } }
+</style>
+</head>
+<body>
+
+  <div class="poster">
+    <div class="frame"></div>
+    <span class="corner c-tl"></span><span class="corner c-tr"></span>
+    <span class="corner c-bl"></span><span class="corner c-br"></span>
+
+    <div class="inner">
+      <div class="kanji">天国</div>
+      <div class="est">CHIANG MAI · SINCE</div>
+
+      <div class="logo">
+        <div class="tengoku">Tengoku</div>
+        <div class="de">de cuisine</div>
+      </div>
+      <div class="tagline">FINE DINING JAPANESE RESTAURANT</div>
+
+      <div class="divider"><span class="ln"></span><span class="dot">❖</span><span class="ln r"></span></div>
+
+      <p class="lead">“ประสบการณ์อาหารญี่ปุ่นต้นตำรับ<br>วัตถุดิบสดใหม่ คัดสรรทุกจาน”</p>
+
+      <div class="menu">
+        <h3>SIGNATURE A LA CARTE</h3>
+        <div class="grid">
+          <div class="item"><span class="nm">Botan Ebi</span><span class="ds"></span><span class="jp">牡丹海老</span></div>
+          <div class="item"><span class="nm">Hamachi</span><span class="ds"></span><span class="jp">はまち</span></div>
+          <div class="item"><span class="nm">Ikura</span><span class="ds"></span><span class="jp">いくら</span></div>
+          <div class="item"><span class="nm">Unagi</span><span class="ds"></span><span class="jp">うなぎ</span></div>
+          <div class="item"><span class="nm">Hokkigai</span><span class="ds"></span><span class="jp">ほっき貝</span></div>
+          <div class="item"><span class="nm">Kani Miso</span><span class="ds"></span><span class="jp">蟹味噌</span></div>
+        </div>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div class="info">
+        <div class="col">
+          <h4>LUNCH</h4>
+          <p>11.00 — 14.00 น.</p>
+        </div>
+        <div class="col">
+          <h4>OPEN DAILY</h4>
+          <p><span class="th-script">เปิดบริการทุกวัน</span><br>Tazala Branch</p>
+        </div>
+        <div class="col">
+          <h4>DINNER</h4>
+          <p>17.30 — 22.00 น.</p>
+        </div>
+      </div>
+
+      <div class="reserve">
+        <div class="lbl">RESERVATION · <span class="th-script">สำรองที่นั่ง</span></div>
+        <div class="ph">053-851-133 &nbsp;·&nbsp; 081-885-5959</div>
+      </div>
+
+      <div class="foot"><span class="fb">f</span>&nbsp; Tengoku De Cuisine Chiangmai</div>
+    </div>
+  </div>
+
+  <p class="hint">โปสเตอร์ขนาด 700×990 · สั่งพิมพ์/บันทึก: Ctrl+P → Save as PDF · หรือแคปหน้าจอเฉพาะกรอบโปสเตอร์</p>
+
+</body>
+</html>
